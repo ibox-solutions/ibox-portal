@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  password String
+  name String
+  role String @default("MITARBEITER")
+  isActive Boolean @default(true)
+  lastLogin DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductGroup {
+  id String @id @default(cuid())
+  name String
+  slug String @unique
+  description String?
+  color String?
+  defaultDesignId String?
+  defaultDesign Design? @relation("defaultDesign", fields: [defaultDesignId], references: [id], onDelete: SetNull)
+  products Product[]
+  designs Design[] @relation("productGroupDesigns")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id String @id @default(cuid())
+  productGroupId String
+  productGroup ProductGroup @relation(fields: [productGroupId], references: [id], onDelete: Cascade)
+  name String
+  slug String
+  description String?
+  specifications Json?
+  icon String?
+  displayOrder Int @default(0)
+  isActive Boolean @default(true)
+  versions ProductVersion[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductVersion {
+  id String @id @default(cuid())
+  productId String
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  version String
+  releaseDate DateTime?
+  description String?
+  isActive Boolean @default(true)
+  displayOrder Int @default(0)
+  templates Template[]
+  presentations Presentation[] @relation("baseProduct")
+  presentationProducts PresentationProduct[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model IndustryCategory {
+  id String @id @default(cuid())
+  name String
+  slug String @unique
+  path String
+  parentCategoryId String?
+  parentCategory IndustryCategory? @relation("hierarchy", fields: [parentCategoryId], references: [id], onDelete: SetNull)
+  childCategories IndustryCategory[] @relation("hierarchy")
+  description String?
+  icon String?
+  displayOrder Int @default(0)
+  templates Template[]
+  presentations Presentation[] @relation("baseCategory")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Design {
+  id String @id @default(cuid())
+  name String
+  slug String @unique
+  description String?
+  productGroupId String?
+  productGroup ProductGroup? @relation("productGroupDesigns", fields: [productGroupId], references: [id], onDelete: SetNull)
+  colors Json?
+  typography Json?
+  layoutTemplate String?
+  cssOverrides String?
+  isDefault Boolean @default(false)
+  templates Template[]
+  presentations Presentation[]
+  asDefaultFor ProductGroup[] @relation("defaultDesign")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdditionalOffer {
+  id String @id @default(cuid())
+  name String
+  slug String @unique
+  description String?
+  category String
+  price Decimal?
+  icon String?
+  templateSnippet String?
+  isActive Boolean @default(true)
+  displayOrder Int @default(0)
+  presentationOffers PresentationOffer[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Template {
+  id String @id @default(cuid())
+  productVersionId String
+  productVersion ProductVersion @relation(fields: [productVersionId], references: [id], onDelete: Cascade)
+  industryCategoryId String
+  industryCategory IndustryCategory @relation(fields: [industryCategoryId], references: [id], onDelete: Cascade)
+  designId String
+  design Design @relation(fields: [designId], references: [id], onDelete: Cascade)
+  htmlWebsite String
+  htmlSlide String
+  customizations Json?
+  isCustom Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productVersionId, industryCategoryId, designId])
+}
+
+model Presentation {
+  id String @id @default(cuid())
+  customerId String
+  customerCity String
+  baseProductVersionId String
+  baseProductVersion ProductVersion @relation("baseProduct", fields: [baseProductVersionId], references: [id])
+  baseCategoryId String
+  baseCategory IndustryCategory @relation("baseCategory", fields: [baseCategoryId], references: [id])
+  baseDesignId String
+  baseDesign Design @relation(fields: [baseDesignId], references: [id])
+  title String
+  slug String @unique
+  htmlWebsite String?
+  htmlSlide String?
+  status String @default("DRAFT")
+  publishedAt DateTime?
+  products PresentationProduct[]
+  offers PresentationOffer[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PresentationProduct {
+  id String @id @default(cuid())
+  presentationId String
+  presentation Presentation @relation(fields: [presentationId], references: [id], onDelete: Cascade)
+  productVersionId String
+  productVersion ProductVersion @relation(fields: [productVersionId], references: [id])
+  position Int @default(0)
+  displayMode String @default("addon")
+  customContent Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([presentationId, productVersionId])
+}
+
+model PresentationOffer {
+  id String @id @default(cuid())
+  presentationId String
+  presentation Presentation @relation(fields: [presentationId], references: [id], onDelete: Cascade)
+  additionalOfferId String
+  additionalOffer AdditionalOffer @relation(fields: [additionalOfferId], references: [id])
+  quantity Int @default(1)
+  customContent Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([presentationId, additionalOfferId])
+}
