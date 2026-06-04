@@ -13,7 +13,6 @@ export default function AdminLayout({
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Basic check - replace with proper auth later
     setIsLoading(false)
   }, [])
 
@@ -51,6 +50,12 @@ export default function AdminLayout({
             className="block px-4 py-2 rounded hover:bg-gray-100 text-sm font-medium"
           >
             Designs
+          </Link>
+          <Link
+            href="/admin/templates"
+            className="block px-4 py-2 rounded hover:bg-gray-100 text-sm font-medium"
+          >
+            Templates
           </Link>
           <Link
             href="/admin/offers"

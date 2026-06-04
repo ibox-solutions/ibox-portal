@@ -29,6 +29,7 @@ model ProductGroup {
   defaultDesign Design? @relation("defaultDesign", fields: [defaultDesignId], references: [id], onDelete: SetNull)
   products Product[]
   designs Design[] @relation("productGroupDesigns")
+  templates Template[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -58,7 +59,6 @@ model ProductVersion {
   description String?
   isActive Boolean @default(true)
   displayOrder Int @default(0)
-  templates Template[]
   presentations Presentation[] @relation("baseProduct")
   presentationProducts PresentationProduct[]
   createdAt DateTime @default(now())
@@ -76,7 +76,6 @@ model IndustryCategory {
   description String?
   icon String?
   displayOrder Int @default(0)
-  templates Template[]
   presentations Presentation[] @relation("baseCategory")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -94,7 +93,6 @@ model Design {
   layoutTemplate String?
   cssOverrides String?
   isDefault Boolean @default(false)
-  templates Template[]
   presentations Presentation[]
   asDefaultFor ProductGroup[] @relation("defaultDesign")
   createdAt DateTime @default(now())
@@ -119,20 +117,20 @@ model AdditionalOffer {
 
 model Template {
   id String @id @default(cuid())
-  productVersionId String
-  productVersion ProductVersion @relation(fields: [productVersionId], references: [id], onDelete: Cascade)
-  industryCategoryId String
-  industryCategory IndustryCategory @relation(fields: [industryCategoryId], references: [id], onDelete: Cascade)
-  designId String
-  design Design @relation(fields: [designId], references: [id], onDelete: Cascade)
+  name String
+  description String?
+  productGroupId String
+  productGroup ProductGroup @relation(fields: [productGroupId], references: [id], onDelete: Cascade)
+  isStandard Boolean @default(false)
   htmlWebsite String
   htmlSlide String
   customizations Json?
-  isCustom Boolean @default(false)
+  isActive Boolean @default(true)
+  presentations Presentation[] @relation("basedOnTemplate")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([productVersionId, industryCategoryId, designId])
+  @@index([productGroupId, isStandard])
 }
 
 model Presentation {
@@ -145,11 +143,14 @@ model Presentation {
   baseCategory IndustryCategory @relation("baseCategory", fields: [baseCategoryId], references: [id])
   baseDesignId String
   baseDesign Design @relation(fields: [baseDesignId], references: [id])
+  templateId String?
+  template Template? @relation("basedOnTemplate", fields: [templateId], references: [id], onDelete: SetNull)
   title String
   slug String @unique
   htmlWebsite String?
   htmlSlide String?
   status String @default("DRAFT")
+  presentationType String @default("unbegleitet")
   publishedAt DateTime?
   products PresentationProduct[]
   offers PresentationOffer[]

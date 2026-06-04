@@ -1,36 +1,33 @@
-import { prisma } from '@/lib/db'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/db"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
-export async function GET() {
-  try {
-    const groups = await prisma.productGroup.findMany({
-      include: {
-        _count: { select: { products: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    })
-    return NextResponse.json(groups)
-  } catch (error) {
-    console.error('Error:', error)
-    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 })
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
-}
 
-export async function POST(req: NextRequest) {
   try {
-    const { name, slug, description, color } = await req.json()
-
-    if (!name || !slug) {
-      return NextResponse.json({ error: 'Name and slug required' }, { status: 400 })
-    }
-
-    const group = await prisma.productGroup.create({
-      data: { name, slug, description, color },
+    const productGroups = await prisma.productGroup.findMany({
+      include: {
+        products: {
+          include: {
+            versions: true,
+          },
+        },
+        designs: true,
+      },
+      orderBy: { createdAt: "desc" },
     })
 
-    return NextResponse.json(group)
+    return NextResponse.json(productGroups)
   } catch (error) {
-    console.error('Error:', error)
-    return NextResponse.json({ error: 'Failed to create' }, { status: 500 })
+    console.error("Error fetching product groups:", error)
+    return NextResponse.json(
+      { error: "Failed to fetch product groups" },
+      { status: 500 }
+    )
   }
 }
