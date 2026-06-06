@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession, signOut } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
@@ -57,29 +57,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
-      {/* Top Nav */}
-      <nav className="bg-[#1A1A1A] text-white px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <span className="font-bold text-[#309E3B] text-xl tracking-tight">ibox Portal</span>
-          <div className="flex items-center gap-1 text-sm">
-            <NavLink href="/dashboard" label="Dashboard" active />
-            <NavLink href="/presentations" label="Präsentationen" />
-            <NavLink href="/presentations/new" label="+ Neu" highlight />
-            <NavLink href="/admin/templates" label="Templates" />
-            <NavLink href="/admin/products" label="Produkte" />
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-[#9B9B9B]">{session?.user?.name || session?.user?.email}</span>
-          <button
-            onClick={() => signOut({ callbackUrl: "/auth/login" })}
-            className="text-xs text-[#6B6B6B] hover:text-white transition px-3 py-1.5 rounded border border-[#333] hover:border-[#555]"
-          >
-            Abmelden
-          </button>
-        </div>
-      </nav>
-
       <main className="max-w-7xl mx-auto px-6 py-10">
 
         {/* Welcome */}
@@ -238,23 +215,6 @@ export default function DashboardPage() {
 }
 
 // ─── Sub-Components ───────────────────────────────────────────────────────────
-
-function NavLink({ href, label, active, highlight }: { href: string; label: string; active?: boolean; highlight?: boolean }) {
-  return (
-    <Link
-      href={href}
-      className={`px-3 py-2 rounded text-sm transition font-medium ${
-        highlight
-          ? "bg-[#309E3B] text-white hover:bg-[#2a8a32]"
-          : active
-          ? "text-white bg-[#2a2a2a]"
-          : "text-[#9B9B9B] hover:text-white hover:bg-[#2a2a2a]"
-      }`}
-    >
-      {label}
-    </Link>
-  )
-}
 
 function KPICard({ label, value, sub, color, icon }: { label: string; value: number; sub: string; color: string; icon: string }) {
   return (

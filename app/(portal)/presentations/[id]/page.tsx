@@ -151,7 +151,6 @@ export default function PresentationDetailPage() {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-start">
           <div>
-            <Link href="/presentations" className="text-[#309E3B] text-sm">← Zurück</Link>
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-2">{presentation.title}</h1>
             <p className="text-[#6B6B6B]">{presentation.customerCity}</p>
           </div>
