@@ -3,35 +3,159 @@ import { prisma } from "@/lib/db"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
-const IBOX_TEMPLATE_SYSTEM = `
-Du bist ein Experte für ibox solutions GmbH, ein österreichisches Digital-Signage-Unternehmen.
+const IBOX_SYSTEM_PROMPT = `Du bist ein erfahrener Texter und Designer für ibox solutions GmbH & Co KG, ein österreichisches Unternehmen das multifunktionale Smart-City-Boxen entwickelt und vertreibt.
 
-PRODUKTE & USPs:
-- ibox.city: Multifunktionale Smart-City-Box. 43" Display (IP66), KI-Sensoren, Abfallmanagement. Für Gemeinden, Städte, öffentliche Plätze.
-- ibox.board: Interaktives Touch-Display Indoor. 55"–98", 4K, für Meetings, Info-Points, Retail.
-- ibox.indoor: Digital Signage Indoor. Screens, Player, Content-Management.
-- ibox.system: Komplette Infrastruktur. Hardware + Software + Content + Service aus einer Hand.
+## UNTERNEHMENS-IDENTITÄT
+- CEO: Alexander Frank (Magister iuris, Master of Business Law)
+- Standort: Saaz 102/3, 8341 Paldau / Wien, Österreich
+- Kontakt: frank@ibox.eu.com / +43 664 911 24 63
+- FN 650835k (LGZ Graz) | ATU82170589
+- Auszeichnungen: Made in Austria, EUIPO, Zero Project 2026
 
-GESCHÄFTSMODELLE: CAPEX (Kauf), OPEX (Miete/Full-Service), Revenue Share (0 Investition).
-DATENSCHUTZ: DSGVO-konform, Schweizer Server.
-TONALITÄT: Professionell, direkt, keine Floskeln, konkrete Vorteile.
+## KERNBOTSCHAFT
+Die ibox ist KEIN Display. Sie ist ein Problemloser.
+Die ibox ist KEIN Mülleimer mit Bildschirm. Sie ist ein multifunktionales Infrastruktur-Element.
 
-IBOX BRAND:
-- Primärfarbe: #309E3B (grün)
+## PRODUKTE
+
+### ibox.city
+3-in-1 Smart City Box:
+1. **Digital Signage** — 43" Outdoor-Display, 4K, IP66, 24/7, DSGVO-konform, Schweizer Server
+2. **Designer-Abfallbehälter** — geruchsdicht, integrierter Aschenbecher, wartungsarm
+3. **KI-Sensorik** — anonyme Personenzählung, Demografie-Analyse, Heatmaps, Edge-AI (keine personenbezogenen Daten)
+
+Technisch: Pulverbeschichteter Stahl & Sicherheitsglas, vandalensicher, wetterfest, CI-konform (alle RAL-Farben), barrierefrei (EU BFSG-konform), Solar-Option, 4G/LAN
+
+### ibox.board
+Interaktives Touch-Display für Indoor. 55"–98", 4K, Android/Windows. Für Meetings, Info-Points, Retail, Bildung.
+
+### ibox.indoor  
+Digital Signage Indoor. Screens, Player, Content-Management.
+
+### ibox.system
+Komplette Digital-Signage-Infrastruktur. Hardware + Software + Content + Service aus einer Hand.
+
+## GESCHÄFTSMODELLE
+
+**CAPEX (Kauf):** Einmalinvestition, Eigentum beim Kunden
+**OPEX (Miete):** Monatliche Rate ab 399€/Monat, Full-Service inklusive, sofort steuerlich absetzbar
+**Revenue Share:** ibox investiert komplett, Kunde teilt Werbeeinnahmen. 0€ Investition, 0€ Risiko.
+
+Kostenvergleich 5 Jahre (ibox.city):
+- Stele klassisch: Anschaffung ~14.500€ + Wartung 5.940€ + Reinigung 2.980€ = ~23.420€
+- ibox OPEX: 399€ × 60 = 23.940€ — aber INKL. allem, OHNE Baustelle, MIT KI-Sensorik
+
+## ZIELGRUPPEN & IHRE ARGUMENTE
+
+### Städte & Gemeinden
+- Modernes Stadtbild ohne Investition (Revenue Share)
+- Bürgerinformation digital & aktuell
+- Smart City ohne IT-Aufwand
+- Barrierefreiheit erfüllt (EU-Pflicht seit 2025)
+- Keine Baumaßnahmen nötig
+
+### Einzelhandel / Supermärkte (z.B. REWE/BILLA)
+- Besucherfrequenz messen (ohne Kamera, DSGVO-konform)
+- One-to-One Marketing: Werbung passt sich Zielgruppe VOR ORT an
+- Dynamische Inhalte: Aktionen live ändern
+- Service Fee Modell: 100% Werbeeinnahmen für den Kunden
+- Messbarer ROI statt Streuverlust
+
+### Gastronomie
+- Digitale Speise- & Getränkekarte
+- Aktionen in Echtzeit ändern
+- Wartezeitgefühl reduzieren
+- Outdoor-Werbung für Laufkundschaft
+
+### Bahnhöfe & Flughäfen
+- Passagierinfo + Werbung kombiniert
+- Frequenzanalyse für Standortentscheidungen
+- Revenue aus Werbeflächenvermarktung
+- Vandalensichere Outdoor-Lösung
+
+### Banken & Sparkassen
+- Außenbereich modernisieren ohne Bauaufwand
+- Kundenansprache am POS
+- Barrierefreiheit (EU-Gesetz)
+- Filialmarketing automatisiert
+
+### Agenturen & Medienunternehmen
+- Neue Werbefläche für Kunden erschließen
+- Messbare Reichweite (Personenzählung)
+- Full-Service — kein eigenes Know-how nötig
+
+## ARGUMENTATIONSSTRUKTUR (Präsentationsaufbau)
+1. Problem/Herausforderung des Kunden benennen
+2. Bisherige Lösungen & deren Schwächen
+3. ibox als Lösung einführen
+4. Konkrete Vorteile für diese Branche
+5. Business Model (passend zur Zielgruppe)
+6. Der Aha-Effekt: echte Zahlen & Vergleich
+7. Nächste Schritte / Call to Action
+
+## TONALITÄT
+- Professionell, direkt, lösungsorientiert
+- Keine leeren Marketing-Phrasen
+- Konkrete Zahlen wo möglich
+- "Die ibox ist kein X, sie ist ein Y" (Umformulierungsstrategie)
+- Kurze, klare Sätze
+- Sie-Form für Kundenmaterialien
+
+## BRAND DESIGN
+- Primärfarbe: #309E3B (ibox Grün)
 - Dunkel: #1A1A1A
-- Hintergrund: #F5F5F5
-- Stil: Minimalistisch, clean, Swiss-Design
+- Hintergrund: #F5F5F5 oder Weiß
+- Akzent hell: #E8F5E9
+- Stil: Minimalistisch, Swiss Design, viel Weißraum, klare Hierarchie
+- KEIN Bling, keine Farborgien, keine generischen Stock-Photo-Ästhetik
 
-Erstelle zwei HTML-Dokumente. Antworte NUR mit einem JSON-Objekt, kein Markdown:
-{
-  "htmlSlide": "<!DOCTYPE html>...",
-  "htmlWebsite": "<!DOCTYPE html>..."
-}
-
-htmlSlide: Kompakte Präsentationsfolie. 100vh, zentriert, große Headline, max. 5 Bullets, print-optimiert.
-htmlWebsite: Vollständige Landingpage. Hero, Features/Benefits, CTA-Sektion, Footer. Scrollbar, professionell.
-Beide: Platzhalter {{productName}}, {{categoryName}}, {{customerCity}}, {{createdDate}}, {{productGroupName}}, {{version}}, {{productDescription}} einbauen.
+Antworte NUR mit einem JSON-Objekt, kein Markdown, keine Erklärung:
+{"htmlSlide": "<!DOCTYPE html>...", "htmlWebsite": "<!DOCTYPE html>..."}
 `
+
+function buildPrompt(params: {
+  productName: string
+  productDescription: string
+  categoryName: string
+  customerCity: string
+  presentationType: string
+  productGroupName: string
+}): string {
+  const { productName, productDescription, categoryName, customerCity, presentationType, productGroupName } = params
+
+  const typeInstructions = presentationType === "begleitet"
+    ? `BEGLEITET (Pitch mit Sprecher): Minimal, visuell stark, wenig Text. Große Headlines, max. 4 Bullet-Points pro Seite, viel Weißraum. Der Sprecher erklärt — die Folie unterstreicht nur.`
+    : `UNBEGLEITET (per Email versandt): Selbsterklärend, detaillierter, aber trotzdem klar strukturiert. Jeder Abschnitt muss ohne Sprecher verständlich sein.`
+
+  return `Erstelle zwei HTML-Präsentationen für:
+
+**Produkt:** ${productName} (Gruppe: ${productGroupName})
+**Produktbeschreibung:** ${productDescription}
+**Zielbranche:** ${categoryName}
+**Kundenstadt:** ${customerCity || "nicht angegeben"}
+**Präsentationstyp:** ${typeInstructions}
+
+**htmlSlide** — Eine Präsentationsfolie (A4, Hochformat oder 16:9):
+- Headline: Spezifisch für ${categoryName}, nicht generisch
+- Subheadline: Konkreter Kundennutzen für diese Branche
+- 3-4 Bullet-Points: Die stärksten Argumente für ${categoryName}
+- Business Model Hinweis: passend (Revenue Share wenn Gemeinde/Stadt, OPEX für Retail, etc.)
+- Footer: ibox solutions | frank@ibox.eu.com
+- Design: ibox Brand (#309E3B, #1A1A1A, clean, minimal)
+- Print-optimiert: @media print
+
+**htmlWebsite** — Vollständige Landingpage:
+- Hero: Starke Headline + Subtext, spezifisch für ${categoryName}
+- Problem-Sektion: Was ${categoryName}-Kunden heute haben und was fehlt
+- Lösung: ${productName} als Antwort, konkrete Features
+- 3-4 Benefits mit Icons (Emoji), branchen-spezifisch
+- Business Model Box: Passende Option hervorgehoben
+- Der Aha-Effekt: Kostenvergleich oder Zahlen die überzeugen
+- CTA: Konkret, nicht generisch ("Demo-Termin anfragen" o.ä.)
+- Footer: Alle Firmendaten
+
+Nutze das echte ibox-Wissen aus dem System-Prompt. Keine generischen Texte.`
+}
 
 async function generateTemplates(params: {
   productName: string
@@ -41,18 +165,6 @@ async function generateTemplates(params: {
   presentationType: string
   productGroupName: string
 }): Promise<{ htmlSlide: string; htmlWebsite: string }> {
-  const { productName, productDescription, categoryName, customerCity, presentationType, productGroupName } = params
-
-  const userPrompt = `Erstelle zwei HTML-Templates für:
-- Produkt: ${productName}
-- Beschreibung: ${productDescription}
-- Branche: ${categoryName}
-- Kundenstadt: ${customerCity || "nicht angegeben"}
-- Präsentationstyp: ${presentationType === "begleitet" ? "Begleitet (minimal, visuell, wenig Text)" : "Unbegleitet (detailliert, selbsterklärend)"}
-- Produktgruppe: ${productGroupName}
-
-Antworte nur mit dem JSON-Objekt, kein Markdown.`
-
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -63,14 +175,13 @@ Antworte nur mit dem JSON-Objekt, kein Markdown.`
     body: JSON.stringify({
       model: "claude-sonnet-4-5",
       max_tokens: 8000,
-      system: IBOX_TEMPLATE_SYSTEM,
-      messages: [{ role: "user", content: userPrompt }],
+      system: IBOX_SYSTEM_PROMPT,
+      messages: [{ role: "user", content: buildPrompt(params) }],
     }),
   })
 
   if (!response.ok) {
-    const err = await response.text()
-    throw new Error(`Anthropic API error: ${err}`)
+    throw new Error(`Anthropic API error: ${await response.text()}`)
   }
 
   const data = await response.json()
@@ -102,7 +213,7 @@ export async function POST(
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY ist nicht konfiguriert. Bitte in den Vercel Environment Variables eintragen." },
+      { error: "ANTHROPIC_API_KEY nicht konfiguriert." },
       { status: 503 }
     )
   }
@@ -114,14 +225,9 @@ export async function POST(
       where: { id },
       include: {
         baseProductVersion: {
-          include: {
-            product: {
-              include: { productGroup: true },
-            },
-          },
+          include: { product: { include: { productGroup: true } } },
         },
         baseCategory: true,
-        template: true,
       },
     })
 
@@ -130,16 +236,13 @@ export async function POST(
     }
 
     const productName = presentation.baseProductVersion.product.name
-    const productDescription =
-      presentation.baseProductVersion.product.description ||
-      "Hochwertige Digital Signage Lösung von ibox solutions"
+    const productDescription = presentation.baseProductVersion.product.description || productName
     const categoryName = presentation.baseCategory.name
     const customerCity = presentation.customerCity || ""
     const presentationType = presentation.presentationType
     const productGroupName = presentation.baseProductVersion.product.productGroup.name
     const version = presentation.baseProductVersion.version
 
-    // Direct function call — no internal HTTP fetch
     const { htmlSlide, htmlWebsite } = await generateTemplates({
       productName,
       productDescription,
@@ -159,7 +262,7 @@ export async function POST(
       version,
     }
 
-    const updatedPresentation = await prisma.presentation.update({
+    const updated = await prisma.presentation.update({
       where: { id },
       data: {
         htmlSlide: renderPlaceholders(htmlSlide, placeholders),
@@ -168,17 +271,12 @@ export async function POST(
       },
     })
 
-    return NextResponse.json({ success: true, presentation: updatedPresentation })
+    return NextResponse.json({ success: true, presentation: updated })
   } catch (error: any) {
     console.error("Regenerate error:", error)
-
     if (error.message?.includes("JSON")) {
-      return NextResponse.json(
-        { error: "KI hat kein gültiges Template zurückgegeben. Bitte nochmal versuchen." },
-        { status: 422 }
-      )
+      return NextResponse.json({ error: "KI-Antwort konnte nicht verarbeitet werden. Bitte nochmal versuchen." }, { status: 422 })
     }
-
     return NextResponse.json({ error: "Interner Fehler: " + error.message }, { status: 500 })
   }
 }
