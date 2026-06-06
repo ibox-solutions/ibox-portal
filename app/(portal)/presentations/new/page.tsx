@@ -176,7 +176,7 @@ export default function NewPresentationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] py-12 px-6">
+    <div className="bg-[#F5F5F5] flex-1 py-12 px-6">
       <div className="max-w-2xl mx-auto bg-white rounded-xl shadow p-8">
 
         {/* Header */}

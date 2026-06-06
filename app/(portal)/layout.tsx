@@ -17,10 +17,11 @@ const NAV = [
     label: "Verwaltung",
     items: [
       { href: "/admin/templates", icon: "🎨", label: "Templates" },
-      { href: "/admin/products", icon: "📦", label: "Produkte" },
       { href: "/admin/product-groups", icon: "🗂", label: "Produktgruppen" },
+      { href: "/admin/products", icon: "📦", label: "Produkte" },
       { href: "/admin/categories", icon: "🏷", label: "Branchen" },
       { href: "/admin/designs", icon: "✏️", label: "Designs" },
+      { href: "/admin/offers", icon: "➕", label: "Zusatzangebote" },
     ],
   },
 ]

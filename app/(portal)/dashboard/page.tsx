@@ -56,7 +56,7 @@ export default function DashboardPage() {
   const maxGroupCount = Math.max(...(data?.presentationsPerGroup.map((g) => g.count) || [1]), 1)
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
+    <div className="bg-[#F5F5F5] flex-1">
       <main className="max-w-7xl mx-auto px-6 py-10">
 
         {/* Welcome */}

@@ -147,9 +147,9 @@ export default function PresentationDetailPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-start">
+    <div className="bg-[#F5F5F5] flex-1">
+      <header className="bg-white border-b border-[#E0E0E0]">
+        <div className="px-6 py-5 flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-2">{presentation.title}</h1>
             <p className="text-[#6B6B6B]">{presentation.customerCity}</p>
@@ -253,7 +253,7 @@ export default function PresentationDetailPage() {
         )}
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="px-6 py-8 max-w-6xl">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="border-b border-[#E0E0E0] flex">
             <button
