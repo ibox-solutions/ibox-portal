@@ -101,13 +101,9 @@ function LoginForm() {
         </form>
 
         <div className="mt-8 pt-6 border-t border-[#F5F5F5]">
-          <p className="text-xs text-[#6B6B6B] text-center mb-3">
-            Demo Credentials (for testing)
+          <p className="text-xs text-[#6B6B6B] text-center">
+            Bei Problemen wende dich an deinen Administrator.
           </p>
-          <div className="bg-[#F5F5F5] p-3 rounded text-xs space-y-1">
-            <p><strong>Email:</strong> john@ibox.eu</p>
-            <p><strong>Password:</strong> demo123</p>
-          </div>
         </div>
       </div>
     </div>
