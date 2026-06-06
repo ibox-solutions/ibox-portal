@@ -3,6 +3,30 @@ import { prisma } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  try {
+    const { id } = await params
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        productGroup: true,
+        versions: { orderBy: { createdAt: 'asc' } },
+      },
+    })
+    if (!product) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    return NextResponse.json(product)
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+  }
+}
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
