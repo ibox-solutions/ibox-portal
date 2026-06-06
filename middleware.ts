@@ -10,5 +10,5 @@ export const middleware = withAuth({
 })
 
 export const config = {
-  matcher: ["/admin/:path*", "/presentations/:path*"],
+  matcher: ["/admin/:path*", "/presentations/:path*", "/dashboard/:path*", "/dashboard"],
 }
