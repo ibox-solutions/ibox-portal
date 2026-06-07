@@ -114,17 +114,20 @@ Jede Folie hat folgende Felder:
 {
   "id": "slide_1",
   "type": "cover|content|bullets|comparison|cta",
-  "label": "Kurzes Kapitel-Label (optional)",
+  "label": "Kurzes Kapitel-Label in GROSSBUCHSTABEN (z.B. DIGITAL SIGNAGE, ZIELGRUPPENANALYSE)",
   "headline": "Haupttitel der Folie",
-  "subheadline": "Untertitel (optional)",
-  "text": "Fließtext (optional)",
+  "subheadline": "Untertitel oder einleitender Satz (optional)",
+  "text": "Fließtext — max. 2 Sätze (optional)",
   "bullets": ["Punkt 1", "Punkt 2", "Punkt 3"],
-  "ctaText": "Nur bei type=cta: Button-Text",
-  "backgroundColor": "#1A1A1A nur für Cover/CTA, sonst weglassen"
+  "ctaText": "Nur bei type=cta: Button-Text"
 }
 
-Erstelle 8-12 Folien. Erste Folie: type=cover. Letzte Folie: type=cta.
-Beispiel-Typen: cover, content, bullets, comparison, cta
+Folien-Typen:
+- cover: Deckblatt
+- content: Hauptaussage mit optionalem Fließtext + Bullets als Karten
+- bullets: Nummerierte Liste (ideal für 4-6 gleichwertige Punkte)
+- comparison: Zwei Spalten Standard vs. ibox
+- cta: Abschluss mit Kontakt
 `
 
 function buildPrompt(params: {
@@ -141,35 +144,51 @@ function buildPrompt(params: {
   const { productName, productDescription, categoryName, customerCity, customerName, customerWebsite, additionalInfo, presentationType, productGroupName } = params
 
   const typeInstructions = presentationType === "begleitet"
-    ? `BEGLEITET (Pitch mit Sprecher): Minimal, visuell stark, wenig Text. Große Headlines, max. 4 Bullet-Points pro Seite, viel Weißraum. Der Sprecher erklärt — die Folie unterstreicht nur.`
-    : `UNBEGLEITET (per Email versandt): Selbsterklärend, detaillierter, aber trotzdem klar strukturiert. Jeder Abschnitt muss ohne Sprecher verständlich sein.`
+    ? `BEGLEITET (Pitch mit Sprecher): Wenig Text pro Folie, max. 4 Bullets. Starke Headlines. Der Sprecher erklärt — die Folie unterstreicht.`
+    : `UNBEGLEITET (per Email versandt): Selbsterklärend, etwas mehr Detail, aber trotzdem kompakt. Jede Folie muss ohne Sprecher verständlich sein.`
 
-  return `Erstelle zwei HTML-Präsentationen für:
+  return `Erstelle eine vollständige ibox-Verkaufspräsentation für:
 
 **Produkt:** ${productName} (Gruppe: ${productGroupName})
-**Produktbeschreibung:** ${productDescription}
+**Beschreibung:** ${productDescription}
 **Zielbranche:** ${categoryName}
-${customerName ? `**Kundenname:** ${customerName}` : ""}
-${customerCity ? `**Kundenstadt:** ${customerCity}` : ""}
-${customerWebsite ? `**Kunden-Website:** ${customerWebsite} (analysiere die CI, Farben und Sprache für den Stil)` : ""}
-${additionalInfo ? `**Zusatzinfo vom Vertrieb:** ${additionalInfo}` : ""}
-**Präsentationstyp:** ${typeInstructions}
+${customerName ? `**Kunde:** ${customerName}` : ""}
+${customerCity ? `**Stadt:** ${customerCity}` : ""}
+${customerWebsite ? `**Kunden-Website:** ${customerWebsite}` : ""}
+${additionalInfo ? `**Vertriebsinfo:** ${additionalInfo}` : ""}
+**Typ:** ${typeInstructions}
 
-**htmlSlide** — NICHT mehr nötig, wird aus Folien generiert.
-**htmlWebsite** — NICHT mehr nötig, wird aus Folien generiert.
+PFLICHTSTRUKTUR — exakt diese 13 Folien in dieser Reihenfolge:
 
-Erstelle 8-12 strukturierte Folien für diese Präsentation:
-- Folie 1 (cover): Titel, Kundenname, Produkt
-- Folie 2 (content): Problem/Herausforderung für ${categoryName}
-- Folie 3 (bullets): Was ist ${productName}? Die 3 Kernfunktionen
-- Folie 4 (bullets): Die stärksten Argumente für ${categoryName}
-- Folie 5 (content): Business Model — passend zur Branche (Revenue Share/OPEX/CAPEX)
-- Folie 6 (comparison): Der Aha-Effekt — Kostenvergleich oder Zahlenvergleich
-- Folie 7 (bullets): Was ist alles inklusive? Full-Service-Leistungen
-- Folie 8 (content): DSGVO & Datenschutz — Schweizer Server, Edge-AI
-- Folie 9 (cta): Nächste Schritte, Kontakt
+1. type=cover — label: ibox solutions | headline: "${productName} für ${categoryName}" oder besser | subheadline: Tagline wie "Intelligente Werbung. Smarte Sicherheit." | bullets: 3 Kernzahlen/Fakten im Format "Zahl/Fakt: Erklärung"
 
-Nutze das echte ibox-Wissen. Keine generischen Texte. Branchen-spezifisch für ${categoryName}.`
+2. type=content — label: WAS IST DIE ${productName.toUpperCase()}? | headline: "Was ist die ${productName}?" | subheadline: Kernaussage in 1 Satz | text: 2 Sätze Beschreibung | bullets: 5 Hauptfunktionen (kurz)
+
+3. type=bullets — label: DESIGN & TECHNIK | headline: "Design & Technik, die überzeugt" | subheadline: Wichtigste technische Botschaft für ${categoryName} | bullets: 5-6 technische USPs
+
+4. type=content — label: HERAUSFORDERUNG | headline: Problemstellung für ${categoryName} (als Frage formuliert) | subheadline: "Problematik" | text: 1-2 Sätze die das Problem beschreiben | bullets: 4 konkrete Schmerzpunkte von ${categoryName}
+
+5. type=bullets — label: DIGITAL SIGNAGE | headline: "Digital Signage mit System" | subheadline: Kernbotschaft | bullets: 6 nummerierte Funktionen mit Titel: Beschreibung Format
+
+6. type=bullets — label: KI & ZIELGRUPPENANALYSE | headline: "Intelligente Kundenanalyse" | subheadline: Spezifisch für ${categoryName} | bullets: 5 KI-Vorteile für ${categoryName}
+
+7. type=content — label: EINNAHMEQUELLE | headline: "Einnahmen statt Ausgaben" | subheadline: "Die ${productName} verwandelt Kosten in Einnahmen" | bullets: 5 Punkte zu Revenue Share / OPEX / Passiveinkommen
+
+8. type=bullets — label: BUSINESS MODEL | headline: "Ihr Modell — Ihre Wahl" | bullets: 3 Geschäftsmodelle (CAPEX / OPEX / Revenue Share) je mit konkreten Details und Preisen wo möglich
+
+9. type=comparison — label: DER VERGLEICH | headline: "Stele vs. ${productName}" | bullets: 6-8 Punkte, erste Hälfte Standard-Nachteile, zweite Hälfte ibox-Vorteile
+
+10. type=bullets — label: SICHERHEIT | headline: "Sicherheit, die Leben retten kann" | subheadline: "Die ${productName} erkennt Gefahren bevor etwas passiert" | bullets: 4 Sicherheits-Features
+
+11. type=bullets — label: WER PROFITIERT | headline: "Wer profitiert von der ${productName}?" | bullets: 5 Zielgruppen mit ihren spezifischen Vorteilen
+
+12. type=bullets — label: ALLE VORTEILE | headline: "Ihre Vorteile auf einen Blick" | subheadline: "DIGITAL DENKEN. SICHTBAR HANDELN. SICHER WIRKEN." | bullets: 10-12 Vorteile als kompakte Liste
+
+13. type=cta — label: KONTAKT | headline: "Bereit für den nächsten Schritt?" | text: 1 motivierender Satz | ctaText: "Demo-Termin anfragen" | bullets: 4 nächste Schritte mit ✓
+
+Branchenspezifik: Alle Inhalte gezielt auf ${categoryName} ausrichten.${customerName ? ` Angesprochen an ${customerName}.` : ""}
+Nutze echte ibox-Zahlen: 43", IP66, 4G, DSGVO, Schweizer Server, 399€/Monat OPEX, Revenue Share 0€ Investition.
+KEINE generischen Texte. Sprich die Sprache von ${categoryName}.`
 }
 
 async function generateTemplates(params: {
