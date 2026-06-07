@@ -136,7 +136,11 @@ model Template {
 model Presentation {
   id String @id @default(cuid())
   customerId String
-  customerCity String
+  customerCity      String
+  customerName      String?
+  customerWebsite   String?
+  additionalInfo    String?
+  customProductText String?
   baseProductVersionId String
   baseProductVersion ProductVersion @relation("baseProduct", fields: [baseProductVersionId], references: [id])
   baseCategoryId String

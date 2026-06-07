@@ -45,15 +45,36 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { baseProductVersionId, baseCategoryId, templateId, presentationType, customerCity, title } = body
+    const { 
+      baseProductVersionId, baseCategoryId, templateId, presentationType, 
+      customerCity, customerName, customerWebsite, additionalInfo, 
+      customProductText, title 
+    } = body
 
-    if (!baseProductVersionId || !baseCategoryId) {
+    if (!baseCategoryId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    }
+
+    // Custom product mode — find any active product version as placeholder
+    let resolvedProductVersionId = baseProductVersionId
+    if (!resolvedProductVersionId && customProductText) {
+      const anyVersion = await prisma.productVersion.findFirst({
+        where: { isActive: true },
+        include: { product: { include: { productGroup: true } } },
+      })
+      if (!anyVersion) {
+        return NextResponse.json({ error: "Kein aktives Produkt gefunden. Bitte zuerst Produkte anlegen." }, { status: 400 })
+      }
+      resolvedProductVersionId = anyVersion.id
+    }
+
+    if (!resolvedProductVersionId) {
+      return NextResponse.json({ error: "Produkt oder Custom-Text erforderlich" }, { status: 400 })
     }
 
     const [productVersion, category] = await Promise.all([
       prisma.productVersion.findUnique({
-        where: { id: baseProductVersionId },
+        where: { id: resolvedProductVersionId },
         include: { product: { include: { productGroup: true } } },
       }),
       prisma.industryCategory.findUnique({ where: { id: baseCategoryId } }),
@@ -95,12 +116,16 @@ export async function POST(req: NextRequest) {
     const presentation = await prisma.presentation.create({
       data: {
         customerId: session.user.email,
-        customerCity: customerCity || "Unknown",
-        baseProductVersionId,
+        customerCity: customerCity || customerName || "Unbekannt",
+        customerName: customerName || undefined,
+        customerWebsite: customerWebsite || undefined,
+        additionalInfo: additionalInfo || undefined,
+        customProductText: customProductText || undefined,
+        baseProductVersionId: resolvedProductVersionId,
         baseCategoryId,
         baseDesignId,
         templateId: template.id,
-        title: title || `Präsentation ${new Date().toLocaleDateString("de-DE")}`,
+        title: title || (customerName ? `${customerName} Präsentation` : `ibox Präsentation ${new Date().toLocaleDateString("de-DE")}`),
         slug: `pres-${Date.now()}`,
         htmlSlide: renderTemplate(template.htmlSlide),
         htmlWebsite: renderTemplate(template.htmlWebsite),

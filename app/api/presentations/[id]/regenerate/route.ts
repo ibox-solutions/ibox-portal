@@ -118,10 +118,13 @@ function buildPrompt(params: {
   productDescription: string
   categoryName: string
   customerCity: string
+  customerName?: string
+  customerWebsite?: string
+  additionalInfo?: string
   presentationType: string
   productGroupName: string
 }): string {
-  const { productName, productDescription, categoryName, customerCity, presentationType, productGroupName } = params
+  const { productName, productDescription, categoryName, customerCity, customerName, customerWebsite, additionalInfo, presentationType, productGroupName } = params
 
   const typeInstructions = presentationType === "begleitet"
     ? `BEGLEITET (Pitch mit Sprecher): Minimal, visuell stark, wenig Text. Große Headlines, max. 4 Bullet-Points pro Seite, viel Weißraum. Der Sprecher erklärt — die Folie unterstreicht nur.`
@@ -132,11 +135,14 @@ function buildPrompt(params: {
 **Produkt:** ${productName} (Gruppe: ${productGroupName})
 **Produktbeschreibung:** ${productDescription}
 **Zielbranche:** ${categoryName}
-**Kundenstadt:** ${customerCity || "nicht angegeben"}
+${customerName ? `**Kundenname:** ${customerName}` : ""}
+${customerCity ? `**Kundenstadt:** ${customerCity}` : ""}
+${customerWebsite ? `**Kunden-Website:** ${customerWebsite} (analysiere die CI, Farben und Sprache für den Stil)` : ""}
+${additionalInfo ? `**Zusatzinfo vom Vertrieb:** ${additionalInfo}` : ""}
 **Präsentationstyp:** ${typeInstructions}
 
 **htmlSlide** — Eine Präsentationsfolie (A4, Hochformat oder 16:9):
-- Headline: Spezifisch für ${categoryName}, nicht generisch
+- Headline: Spezifisch für ${categoryName}${customerName ? ` / ${customerName}` : ""}, nicht generisch
 - Subheadline: Konkreter Kundennutzen für diese Branche
 - 3-4 Bullet-Points: Die stärksten Argumente für ${categoryName}
 - Business Model Hinweis: passend (Revenue Share wenn Gemeinde/Stadt, OPEX für Retail, etc.)
@@ -145,7 +151,7 @@ function buildPrompt(params: {
 - Print-optimiert: @media print
 
 **htmlWebsite** — Vollständige Landingpage:
-- Hero: Starke Headline + Subtext, spezifisch für ${categoryName}
+- Hero: Starke Headline + Subtext, spezifisch für ${categoryName}${customerName ? ` — angesprochen an ${customerName}` : ""}
 - Problem-Sektion: Was ${categoryName}-Kunden heute haben und was fehlt
 - Lösung: ${productName} als Antwort, konkrete Features
 - 3-4 Benefits mit Icons (Emoji), branchen-spezifisch
@@ -162,6 +168,9 @@ async function generateTemplates(params: {
   productDescription: string
   categoryName: string
   customerCity: string
+  customerName?: string
+  customerWebsite?: string
+  additionalInfo?: string
   presentationType: string
   productGroupName: string
 }): Promise<{ htmlSlide: string; htmlWebsite: string }> {
@@ -235,19 +244,29 @@ export async function POST(
       return NextResponse.json({ error: "Präsentation nicht gefunden" }, { status: 404 })
     }
 
-    const productName = presentation.baseProductVersion.product.name
-    const productDescription = presentation.baseProductVersion.product.description || productName
+    const productName = (presentation as any).customProductText || presentation.baseProductVersion.product.name
+    const productDescription = (presentation as any).customProductText || presentation.baseProductVersion.product.description || productName
     const categoryName = presentation.baseCategory.name
     const customerCity = presentation.customerCity || ""
+    const customerName = (presentation as any).customerName || ""
+    const customerWebsite = (presentation as any).customerWebsite || ""
+    const additionalInfo = (presentation as any).additionalInfo || ""
     const presentationType = presentation.presentationType
-    const productGroupName = presentation.baseProductVersion.product.productGroup.name
-    const version = presentation.baseProductVersion.version
+    const productGroupName = (presentation as any).customProductText ? "ibox" : presentation.baseProductVersion.product.productGroup.name
+    const version = (presentation as any).customProductText ? "Custom" : presentation.baseProductVersion.version
+
+    // Merge with overrides from request body
+    let reqBody: any = {}
+    try { reqBody = await req.json() } catch {}
 
     const { htmlSlide, htmlWebsite } = await generateTemplates({
-      productName,
-      productDescription,
+      productName: reqBody.customProductText || productName,
+      productDescription: reqBody.customProductText || productDescription,
       categoryName,
       customerCity,
+      customerName: reqBody.customerName || customerName,
+      customerWebsite: reqBody.customerWebsite || customerWebsite,
+      additionalInfo: reqBody.additionalInfo || additionalInfo,
       presentationType,
       productGroupName,
     })
