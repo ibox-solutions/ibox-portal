@@ -170,7 +170,7 @@ export default function PresentationEditorPage() {
   const FONT_IMPORT = "@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');"
 
   const logoImg = (dark = false) =>
-    `<img src="${LOGO}" style="position:absolute;top:12px;right:16px;width:48px;height:48px;object-fit:contain;opacity:${dark ? "0.85" : "0.7"};z-index:20" alt="ibox"/>`
+    `<img src="${LOGO}" style="position:absolute;top:12px;right:16px;width:110px;height:32px;object-fit:contain;opacity:${dark ? "0.85" : "0.7"};z-index:20" alt="ibox"/>`
 
   const accentBar = `<div style="position:absolute;top:0;left:0;right:0;height:4px;background:${GREEN};z-index:10"></div>`
 

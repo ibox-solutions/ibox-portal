@@ -39,7 +39,7 @@ const FONT_IMPORT = "@import url('https://fonts.googleapis.com/css2?family=DM+Se
 
 // Small logo HTML snippet — appears top-right on every slide
 const logoSnippet = (dark = true) =>
-  `<img src="${LOGO}" style="position:absolute;top:14px;right:18px;width:52px;height:52px;object-fit:contain;opacity:${dark ? "0.9" : "0.75"};z-index:20;" alt="ibox"/>`
+  `<img src="${LOGO}" style="position:absolute;top:14px;right:18px;width:120px;height:36px;object-fit:contain;opacity:${dark ? "0.9" : "0.75"};z-index:20;" alt="ibox"/>`
 
 // Accent bar top
 const accentBar = `<div style="position:absolute;top:0;left:0;right:0;height:4px;background:${GREEN};z-index:10"></div>`
