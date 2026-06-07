@@ -152,7 +152,9 @@ model Presentation {
   title String
   slug String @unique
   htmlWebsite String?
-  htmlSlide String?
+  htmlSlide   String?
+  slidesData  Json?
+  editorMode  String @default("slides")
   status String @default("DRAFT")
   presentationType String @default("unbegleitet")
   publishedAt DateTime?

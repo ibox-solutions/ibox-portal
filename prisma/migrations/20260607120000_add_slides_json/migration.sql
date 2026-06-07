@@ -1,0 +1,2 @@
+ALTER TABLE "Presentation" ADD COLUMN IF NOT EXISTS "slidesData" JSONB;
+ALTER TABLE "Presentation" ADD COLUMN IF NOT EXISTS "editorMode" TEXT NOT NULL DEFAULT 'slides';

@@ -109,8 +109,22 @@ Kostenvergleich 5 Jahre (ibox.city):
 - Stil: Minimalistisch, Swiss Design, viel Weißraum, klare Hierarchie
 - KEIN Bling, keine Farborgien, keine generischen Stock-Photo-Ästhetik
 
-Antworte NUR mit einem JSON-Objekt, kein Markdown, keine Erklärung:
-{"htmlSlide": "<!DOCTYPE html>...", "htmlWebsite": "<!DOCTYPE html>..."}
+Antworte NUR mit einem JSON-Array von Folien, kein Markdown, keine Erklärung.
+Jede Folie hat folgende Felder:
+{
+  "id": "slide_1",
+  "type": "cover|content|bullets|comparison|cta",
+  "label": "Kurzes Kapitel-Label (optional)",
+  "headline": "Haupttitel der Folie",
+  "subheadline": "Untertitel (optional)",
+  "text": "Fließtext (optional)",
+  "bullets": ["Punkt 1", "Punkt 2", "Punkt 3"],
+  "ctaText": "Nur bei type=cta: Button-Text",
+  "backgroundColor": "#1A1A1A nur für Cover/CTA, sonst weglassen"
+}
+
+Erstelle 8-12 Folien. Erste Folie: type=cover. Letzte Folie: type=cta.
+Beispiel-Typen: cover, content, bullets, comparison, cta
 `
 
 function buildPrompt(params: {
@@ -141,26 +155,21 @@ ${customerWebsite ? `**Kunden-Website:** ${customerWebsite} (analysiere die CI, 
 ${additionalInfo ? `**Zusatzinfo vom Vertrieb:** ${additionalInfo}` : ""}
 **Präsentationstyp:** ${typeInstructions}
 
-**htmlSlide** — Eine Präsentationsfolie (A4, Hochformat oder 16:9):
-- Headline: Spezifisch für ${categoryName}${customerName ? ` / ${customerName}` : ""}, nicht generisch
-- Subheadline: Konkreter Kundennutzen für diese Branche
-- 3-4 Bullet-Points: Die stärksten Argumente für ${categoryName}
-- Business Model Hinweis: passend (Revenue Share wenn Gemeinde/Stadt, OPEX für Retail, etc.)
-- Footer: ibox solutions | frank@ibox.eu.com
-- Design: ibox Brand (#309E3B, #1A1A1A, clean, minimal)
-- Print-optimiert: @media print
+**htmlSlide** — NICHT mehr nötig, wird aus Folien generiert.
+**htmlWebsite** — NICHT mehr nötig, wird aus Folien generiert.
 
-**htmlWebsite** — Vollständige Landingpage:
-- Hero: Starke Headline + Subtext, spezifisch für ${categoryName}${customerName ? ` — angesprochen an ${customerName}` : ""}
-- Problem-Sektion: Was ${categoryName}-Kunden heute haben und was fehlt
-- Lösung: ${productName} als Antwort, konkrete Features
-- 3-4 Benefits mit Icons (Emoji), branchen-spezifisch
-- Business Model Box: Passende Option hervorgehoben
-- Der Aha-Effekt: Kostenvergleich oder Zahlen die überzeugen
-- CTA: Konkret, nicht generisch ("Demo-Termin anfragen" o.ä.)
-- Footer: Alle Firmendaten
+Erstelle 8-12 strukturierte Folien für diese Präsentation:
+- Folie 1 (cover): Titel, Kundenname, Produkt
+- Folie 2 (content): Problem/Herausforderung für ${categoryName}
+- Folie 3 (bullets): Was ist ${productName}? Die 3 Kernfunktionen
+- Folie 4 (bullets): Die stärksten Argumente für ${categoryName}
+- Folie 5 (content): Business Model — passend zur Branche (Revenue Share/OPEX/CAPEX)
+- Folie 6 (comparison): Der Aha-Effekt — Kostenvergleich oder Zahlenvergleich
+- Folie 7 (bullets): Was ist alles inklusive? Full-Service-Leistungen
+- Folie 8 (content): DSGVO & Datenschutz — Schweizer Server, Edge-AI
+- Folie 9 (cta): Nächste Schritte, Kontakt
 
-Nutze das echte ibox-Wissen aus dem System-Prompt. Keine generischen Texte.`
+Nutze das echte ibox-Wissen. Keine generischen Texte. Branchen-spezifisch für ${categoryName}.`
 }
 
 async function generateTemplates(params: {
@@ -173,7 +182,7 @@ async function generateTemplates(params: {
   additionalInfo?: string
   presentationType: string
   productGroupName: string
-}): Promise<{ htmlSlide: string; htmlWebsite: string }> {
+}): Promise<{ slides: any[] }> {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -198,11 +207,16 @@ async function generateTemplates(params: {
   const clean = rawText.replace(/```json|```/g, "").trim()
   const parsed = JSON.parse(clean)
 
-  if (!parsed.htmlSlide || !parsed.htmlWebsite) {
-    throw new Error("AI returned incomplete template data")
-  }
+  const slides = Array.isArray(parsed) ? parsed : parsed.slides || []
+  if (slides.length === 0) throw new Error("AI returned no slides")
 
-  return { htmlSlide: parsed.htmlSlide, htmlWebsite: parsed.htmlWebsite }
+  // Ensure each slide has an id
+  slides.forEach((s: any, i: number) => {
+    if (!s.id) s.id = `slide_${i + 1}`
+    if (!s.bullets) s.bullets = []
+  })
+
+  return { slides }
 }
 
 function renderPlaceholders(html: string, data: Record<string, string>): string {
@@ -259,7 +273,7 @@ export async function POST(
     let reqBody: any = {}
     try { reqBody = await req.json() } catch {}
 
-    const { htmlSlide, htmlWebsite } = await generateTemplates({
+    const { slides } = await generateTemplates({
       productName: reqBody.customProductText || productName,
       productDescription: reqBody.customProductText || productDescription,
       categoryName,
@@ -271,26 +285,16 @@ export async function POST(
       productGroupName,
     })
 
-    const placeholders: Record<string, string> = {
-      productName,
-      productDescription,
-      categoryName,
-      customerCity,
-      createdDate: new Date().toLocaleDateString("de-DE"),
-      productGroupName,
-      version,
-    }
-
     const updated = await prisma.presentation.update({
       where: { id },
       data: {
-        htmlSlide: renderPlaceholders(htmlSlide, placeholders),
-        htmlWebsite: renderPlaceholders(htmlWebsite, placeholders),
+        slidesData: slides,
+        editorMode: "slides",
         updatedAt: new Date(),
       },
     })
 
-    return NextResponse.json({ success: true, presentation: updated })
+    return NextResponse.json({ success: true, presentation: updated, slides })
   } catch (error: any) {
     console.error("Regenerate error:", error)
     if (error.message?.includes("JSON")) {

@@ -188,6 +188,14 @@ export default function PresentationDetailPage() {
               )}
             </button>
 
+            {/* Editor Button */}
+            <Link
+              href={`/presentations/${params.id}/editor`}
+              className="flex items-center gap-2 font-medium px-4 py-2.5 rounded-lg transition text-sm bg-[#1A1A1A] text-white hover:bg-[#333]"
+            >
+              ✏️ Editor
+            </Link>
+
             {/* PDF Dropdown */}
             <div className="relative">
               <button
