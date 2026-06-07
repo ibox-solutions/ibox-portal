@@ -129,16 +129,8 @@ export default function PresentationEditorPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slidesData: slides, editorMode }),
     })
-    // Open print dialog
-    const res = await fetch(`/api/presentations/${id}/slides`)
-    const data = await res.json()
-    const printWindow = window.open("", "_blank")
-    if (printWindow && data.htmlSlide) {
-      printWindow.document.write(data.htmlSlide)
-      printWindow.document.close()
-      printWindow.focus()
-      setTimeout(() => { printWindow.print(); printWindow.close() }, 500)
-    }
+    // Open print page — all slides visible, auto-print
+    window.open(`/api/presentations/${id}/print`, "_blank")
     setIsExporting(false)
   }
 
