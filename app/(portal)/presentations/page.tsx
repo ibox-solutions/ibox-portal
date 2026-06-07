@@ -41,7 +41,7 @@ export default function PresentationsPage() {
     setPresentations(prev => prev.filter(p => p.id !== id))
   }
 
-
+  const filtered = presentations.filter((p) => {
     const q = search.toLowerCase()
     const matchesSearch =
       !q ||
