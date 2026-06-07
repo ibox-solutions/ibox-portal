@@ -163,29 +163,132 @@ export default function PresentationEditorPage() {
   // Live preview HTML
   const previewHTML = () => {
     if (!currentSlide) return ""
-    const bg = currentSlide.backgroundColor || (currentSlide.type === "cover" ? "#1A1A1A" : "white")
-    const textColor = bg === "#1A1A1A" ? "white" : "#1A1A1A"
-    const bullets = (currentSlide.bullets || []).filter(Boolean).map((b) =>
-      `<li style="padding:6px 0;padding-left:20px;position:relative;font-size:14px;color:${textColor === "white" ? "#ccc" : "#444"}">
-        <span style="position:absolute;left:0;color:#309E3B;font-weight:bold">→</span>${b}
-      </li>`
-    ).join("")
+    const idx = slides.findIndex(s => s.id === selectedSlide)
+    const total = slides.length
+    const slide = currentSlide
 
-    return `<!DOCTYPE html><html><head><style>
-      *{margin:0;padding:0;box-sizing:border-box}
-      body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:${bg};width:100%;height:100vh;display:flex;flex-direction:column;padding:40px 50px;justify-content:${currentSlide.type === "cover" ? "center" : "flex-start"};align-items:${currentSlide.type === "cover" ? "center" : "flex-start"};text-align:${currentSlide.type === "cover" ? "center" : "left"}}
-    </style></head><body>
-      ${currentSlide.label ? `<div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#309E3B;margin-bottom:16px">${currentSlide.label}</div>` : ""}
-      ${currentSlide.headline ? `<h1 style="font-size:${currentSlide.type === "cover" ? "2.5rem" : "1.8rem"};font-weight:800;color:${textColor};line-height:1.15;margin-bottom:14px;max-width:700px">${currentSlide.headline}</h1>` : ""}
-      ${currentSlide.subheadline ? `<p style="font-size:1rem;color:${textColor === "white" ? "#999" : "#555"};margin-bottom:20px;max-width:600px">${currentSlide.subheadline}</p>` : ""}
-      ${currentSlide.text ? `<p style="font-size:13px;color:${textColor === "white" ? "#aaa" : "#555"};line-height:1.7;max-width:700px;margin-bottom:16px">${currentSlide.text}</p>` : ""}
-      ${bullets ? `<ul style="list-style:none;margin-top:12px;width:100%;max-width:700px">${bullets}</ul>` : ""}
-      ${currentSlide.type === "cta" ? `<div style="margin-top:28px;display:inline-block;background:#309E3B;color:white;padding:12px 28px;border-radius:8px;font-weight:700;font-size:14px">${currentSlide.ctaText || "Jetzt Kontakt aufnehmen"}</div>` : ""}
-      <div style="position:fixed;bottom:16px;left:50px;right:50px;display:flex;justify-content:space-between;font-size:9px;color:${textColor === "white" ? "#555" : "#bbb"}">
-        <span>ibox solutions | frank@ibox.eu.com</span>
-        <span>${(slides.findIndex(s => s.id === selectedSlide) + 1)} / ${slides.length}</span>
+    const FONTS = `@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');`
+
+    const BASE = `
+      ${FONTS}
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+      :root { --green: #309E3B; --green-light: #E8F5E9; --dark: #0F0F0F; --mid: #6B6B6B; --light: #F5F5F5; --serif: 'DM Serif Display', Georgia, serif; --sans: 'DM Sans', -apple-system, sans-serif; }
+      html, body { width: 100%; height: 100%; font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; }
+      .slide { width: 100%; height: 100%; position: relative; overflow: hidden; }
+      .slide::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--green); z-index: 10; }
+      .footer { position: absolute; bottom: 0; left: 0; right: 0; height: 36px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-top: 1px solid; font-size: 9px; letter-spacing: 0.08em; font-family: var(--sans); font-weight: 500; text-transform: uppercase; }
+    `
+
+    const bullets = (slide.bullets || []).filter(Boolean)
+
+    if (slide.type === "cover") {
+      return `<!DOCTYPE html><html><head><style>${BASE}</style></head><body>
+      <div class="slide" style="background:#0F0F0F">
+        <div style="position:absolute;right:-10px;bottom:-30px;font-family:var(--serif);font-size:260px;color:rgba(255,255,255,0.03);line-height:1">1</div>
+        <div style="padding:40px 50px;height:100%;display:flex;flex-direction:column;justify-content:center">
+          ${slide.label ? `<div style="font-size:9px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:#309E3B;margin-bottom:20px">${slide.label}</div>` : ""}
+          <h1 style="font-family:var(--serif);font-size:42px;line-height:1.1;color:white;margin-bottom:16px;font-weight:400;max-width:480px">${slide.headline || "Präsentation"}</h1>
+          ${slide.subheadline ? `<p style="font-size:13px;color:rgba(255,255,255,0.45);font-weight:300;max-width:380px;line-height:1.6">${slide.subheadline}</p>` : ""}
+          <div style="width:40px;height:2px;background:#309E3B;margin-top:28px"></div>
+        </div>
+        <div class="footer" style="border-color:rgba(255,255,255,0.08);color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.03)">
+          <span>ibox solutions · frank@ibox.eu.com</span><span>${idx + 1} · ${total}</span>
+        </div>
+      </div></body></html>`
+    }
+
+    if (slide.type === "cta") {
+      return `<!DOCTYPE html><html><head><style>${BASE}</style></head><body>
+      <div class="slide" style="background:#309E3B">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:rgba(255,255,255,0.25)"></div>
+        <div style="position:absolute;right:0;top:0;bottom:0;width:35%;opacity:0.06">
+          <svg width="100%" height="100%"><defs><pattern id="g" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="white" stroke-width="0.8"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>
+        </div>
+        <div style="padding:50px 60px;height:100%;display:flex;flex-direction:column;justify-content:center;position:relative">
+          ${slide.label ? `<div style="font-size:9px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:16px">${slide.label}</div>` : ""}
+          <h2 style="font-family:var(--serif);font-size:40px;line-height:1.15;color:white;margin-bottom:14px;font-weight:400;max-width:460px">${slide.headline || "Jetzt starten"}</h2>
+          ${slide.text ? `<p style="font-size:13px;color:rgba(255,255,255,0.65);margin-bottom:28px;max-width:400px;line-height:1.65;font-weight:300">${slide.text}</p>` : `<div style="height:20px"></div>`}
+          <div style="display:inline-block;background:white;color:#309E3B;font-weight:600;font-size:12px;padding:12px 28px;border-radius:4px">${slide.ctaText || "Demo-Termin anfragen"}</div>
+        </div>
+        <div class="footer" style="background:rgba(0,0,0,0.1);border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.35)">
+          <span>ibox solutions · +43 664 911 24 63</span><span>${idx + 1} · ${total}</span>
+        </div>
+      </div></body></html>`
+    }
+
+    if (slide.type === "bullets") {
+      return `<!DOCTYPE html><html><head><style>${BASE}</style></head><body>
+      <div class="slide" style="background:white">
+        <div style="padding:40px 50px 40px;height:100%;display:flex;flex-direction:column;justify-content:center">
+          ${slide.label ? `<div style="font-size:9px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#309E3B;margin-bottom:16px">${slide.label}</div>` : ""}
+          <h2 style="font-family:var(--serif);font-size:28px;line-height:1.15;color:#0F0F0F;margin-bottom:${slide.subheadline ? "6px" : "24px"};font-weight:400;max-width:520px">${slide.headline || ""}</h2>
+          ${slide.subheadline ? `<p style="font-size:12px;color:#888;margin-bottom:20px;font-style:italic">${slide.subheadline}</p>` : ""}
+          <div style="display:grid;grid-template-columns:${bullets.length > 3 ? "1fr 1fr" : "1fr"};gap:0 36px;max-width:600px">
+            ${bullets.map((b: string, i: number) => `
+              <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-top:1px solid #F0F0F0">
+                <span style="font-family:var(--serif);font-size:18px;color:#309E3B;line-height:1;flex-shrink:0">${String(i + 1).padStart(2, "0")}</span>
+                <span style="font-size:12px;color:#333;line-height:1.5">${b}</span>
+              </div>`).join("")}
+          </div>
+        </div>
+        <div class="footer" style="border-color:#EBEBEB;color:#BDBDBD">
+          <span>ibox solutions · frank@ibox.eu.com</span><span>${idx + 1} · ${total}</span>
+        </div>
+      </div></body></html>`
+    }
+
+    if (slide.type === "comparison") {
+      const half = Math.ceil(bullets.length / 2)
+      const left = bullets.slice(0, half)
+      const right = bullets.slice(half)
+      return `<!DOCTYPE html><html><head><style>${BASE}</style></head><body>
+      <div class="slide" style="background:white">
+        <div style="padding:40px 50px;height:100%;display:flex;flex-direction:column">
+          ${slide.label ? `<div style="font-size:9px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#309E3B;margin-bottom:12px">${slide.label}</div>` : ""}
+          <h2 style="font-family:var(--serif);font-size:26px;color:#0F0F0F;margin-bottom:20px;font-weight:400">${slide.headline || ""}</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;flex:1">
+            <div style="padding-right:32px;border-right:1px solid #E8E8E8">
+              <div style="font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#999;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid #E8E8E8">Standard</div>
+              ${left.map((b: string) => `<div style="display:flex;gap:8px;margin-bottom:10px"><span style="color:#BDBDBD;font-size:13px">✕</span><span style="font-size:11px;color:#888;line-height:1.5">${b}</span></div>`).join("")}
+            </div>
+            <div style="padding-left:32px;background:rgba(48,158,59,0.03)">
+              <div style="font-size:9px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#309E3B;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid #309E3B">ibox</div>
+              ${right.map((b: string) => `<div style="display:flex;gap:8px;margin-bottom:10px"><span style="color:#309E3B;font-size:13px">✓</span><span style="font-size:11px;color:#0F0F0F;line-height:1.5;font-weight:500">${b}</span></div>`).join("")}
+            </div>
+          </div>
+        </div>
+        <div class="footer" style="border-color:#EBEBEB;color:#BDBDBD">
+          <span>ibox solutions · frank@ibox.eu.com</span><span>${idx + 1} · ${total}</span>
+        </div>
+      </div></body></html>`
+    }
+
+    // Default: content
+    return `<!DOCTYPE html><html><head><style>${BASE}</style></head><body>
+    <div class="slide" style="background:white">
+      <div style="display:grid;grid-template-columns:160px 1fr;height:100%">
+        <div style="background:#0F0F0F;padding:40px 24px;display:flex;flex-direction:column;justify-content:space-between;position:relative">
+          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:#309E3B"></div>
+          ${slide.label ? `<div style="font-size:8px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#309E3B;line-height:1.5;word-break:break-word">${slide.label}</div>` : "<div></div>"}
+          <div style="font-family:var(--serif);font-size:64px;color:rgba(255,255,255,0.07);line-height:1">${String(idx + 1).padStart(2, "0")}</div>
+        </div>
+        <div style="padding:36px 44px;display:flex;flex-direction:column;justify-content:center">
+          <h2 style="font-family:var(--serif);font-size:26px;line-height:1.15;color:#0F0F0F;margin-bottom:${slide.subheadline ? "6px" : "20px"};font-weight:400;max-width:460px">${slide.headline || ""}</h2>
+          ${slide.subheadline ? `<p style="font-size:12px;color:#888;margin-bottom:16px;font-style:italic;line-height:1.5">${slide.subheadline}</p>` : ""}
+          ${slide.text ? `<p style="font-size:12px;color:#444;line-height:1.75;max-width:440px;margin-bottom:${bullets.length ? "16px" : "0"}">${slide.text}</p>` : ""}
+          ${bullets.map((b: string) => `
+            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+              <div style="width:16px;height:16px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+                <div style="width:5px;height:5px;border-radius:50%;background:#309E3B"></div>
+              </div>
+              <span style="font-size:12px;color:#333;line-height:1.5">${b}</span>
+            </div>`).join("")}
+        </div>
       </div>
-    </body></html>`
+      <div class="footer" style="border-color:#EBEBEB;color:#BDBDBD">
+        <span>ibox solutions · frank@ibox.eu.com</span><span>${idx + 1} · ${total}</span>
+      </div>
+    </div></body></html>`
   }
 
   if (isLoading) return (
