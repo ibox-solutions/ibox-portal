@@ -193,104 +193,110 @@ export default function PresentationEditorPage() {
     const idx = slides.findIndex(sl => sl.id === selectedSlide)
     const total = slides.length
     const bullets = (s.bullets || []).filter(Boolean)
-    const theme = (s as any).theme || (s.type === "cover" ? "dark" : "light")
-    const isDark = theme === "dark" || s.type === "cta"
+    const LOGO = "/ibox-logo.png"
+    const GREEN = "#309E3B"
+
+    const footer = `<div style="position:absolute;bottom:0;left:0;right:0;height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-top:1px solid rgba(255,255,255,.07);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.22);font-weight:600;font-family:'Open Sans',sans-serif"><span>ibox solutions · frank@ibox.eu.com</span><span>${String(idx+1).padStart(2,"0")} · ${String(total).padStart(2,"0")}</span></div>`
+
+    const nav = `<div style="position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(0,0,0,0.7);border-bottom:1px solid rgba(48,158,59,.2);z-index:10"><img src="${LOGO}" style="height:22px;object-fit:contain;opacity:.85"/><span style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;font-family:'Open Sans',sans-serif">${String(idx+1).padStart(2,"0")} / ${String(total).padStart(2,"0")}</span></div>`
+
+    const base = `@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap');*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%;overflow:hidden;font-family:'Open Sans',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;background:#0A0A0C}`
 
     if (s.type === "cover") {
-      return wrapSlide(`
-        ${accentBar}${logoImg(true)}
-        <div style="position:absolute;right:-10px;bottom:-20px;font-family:${SERIF};font-size:240px;color:${isDark?"rgba(255,255,255,0.025)":"rgba(0,0,0,0.025)"};line-height:1;pointer-events:none">${String(idx+1).padStart(2,"0")}</div>
-        <div style="padding:44px 52px;height:100%;display:flex;flex-direction:column;justify-content:center">
-          ${s.label ? `<div style="font-size:9px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:${GREEN};margin-bottom:18px">${s.label}</div>` : ""}
-          <h1 style="font-family:${SERIF};font-size:${isDark?"42px":"40px"};line-height:1.1;color:${isDark?"white":DARK};margin-bottom:14px;font-weight:400;max-width:480px">${s.headline||"Präsentation"}</h1>
-          ${s.subheadline ? `<p style="font-size:13px;color:${isDark?"rgba(255,255,255,0.42)":MID};font-weight:300;max-width:380px;line-height:1.6">${s.subheadline}</p>` : ""}
-          <div style="width:36px;height:2px;background:${GREEN};margin-top:24px"></div>
+      return `<!DOCTYPE html><html><head><style>${base}</style></head><body style="background:#0A0A0C">
+        ${nav}
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 75% 50%,rgba(48,158,59,.18) 0%,transparent 55%)"></div>
+        <div style="position:relative;z-index:1;height:100%;display:flex;align-items:center;padding:44px 8%">
+          <div style="max-width:600px">
+            ${s.label ? `<div style="display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:9px;letter-spacing:2px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:24px"><span style="width:6px;height:6px;border-radius:50%;background:${GREEN}"></span>${s.label}</div>` : ""}
+            <h1 style="font-size:clamp(28px,4.5vw,52px);font-weight:800;letter-spacing:-.025em;color:#fff;line-height:1.05;margin-bottom:16px">${(s.headline||"Präsentation").replace(/\b(ibox[\.\.\w]*)\b/g, `<span style="color:${GREEN}">$1</span>`)}</h1>
+            ${s.subheadline ? `<p style="font-size:13px;color:rgba(255,255,255,.5);font-weight:300;max-width:400px;line-height:1.6">${s.subheadline}</p>` : ""}
+            <div style="width:36px;height:2px;background:${GREEN};margin-top:20px"></div>
+          </div>
         </div>
-        ${footerHtml(idx,total,isDark)}
-      `, isDark ? DARK : "white")
+        ${footer}
+      </body></html>`
     }
 
     if (s.type === "cta") {
-      return wrapSlide(`
-        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:rgba(255,255,255,0.2)"></div>
-        ${logoImg(true)}
-        <div style="position:absolute;right:0;top:0;bottom:0;width:35%;opacity:0.055"><svg width="100%" height="100%"><defs><pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M 28 0 L 0 0 0 28" fill="none" stroke="white" stroke-width="0.7"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg></div>
-        <div style="padding:48px 60px;height:100%;display:flex;flex-direction:column;justify-content:center;position:relative">
-          ${s.label ? `<div style="font-size:9px;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:14px">${s.label}</div>` : ""}
-          <h2 style="font-family:${SERIF};font-size:38px;line-height:1.12;color:white;margin-bottom:12px;font-weight:400;max-width:460px">${s.headline||"Jetzt starten"}</h2>
-          ${s.text ? `<p style="font-size:12px;color:rgba(255,255,255,0.62);margin-bottom:24px;max-width:400px;line-height:1.65;font-weight:300">${s.text}</p>` : "<div style='height:16px'></div>"}
-          <div style="display:inline-block;background:white;color:${GREEN};font-weight:600;font-size:11px;padding:11px 26px;border-radius:4px">${s.ctaText||"Demo-Termin anfragen"}</div>
+      return `<!DOCTYPE html><html><head><style>${base}</style></head><body style="background:#0A0A0C">
+        ${nav}
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,rgba(48,158,59,.22) 0%,transparent 60%)"></div>
+        <div style="position:relative;z-index:1;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:44px 8%">
+          <div style="max-width:540px">
+            ${s.label ? `<div style="font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:${GREEN};margin-bottom:16px">${s.label}</div>` : ""}
+            <h2 style="font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-.025em;color:#fff;margin-bottom:14px;line-height:1.05">${(s.headline||"Jetzt starten").replace(/\b(ibox[\.\.\w]*)\b/g, `<span style="color:${GREEN}">$1</span>`)}</h2>
+            ${s.text ? `<p style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:28px;font-weight:300;line-height:1.6">${s.text}</p>` : "<div style='height:20px'></div>"}
+            <div style="display:inline-block;background:${GREEN};color:#fff;font-weight:700;font-size:13px;padding:12px 28px;border-radius:8px">${s.ctaText||"Demo-Termin anfragen"} →</div>
+          </div>
         </div>
-        ${footerHtml(idx,total,true)}
-      `, GREEN)
+        ${footer}
+      </body></html>`
     }
 
     if (s.type === "bullets") {
-      const cols = bullets.length > 4 ? 2 : 1
-      return wrapSlide(`
-        ${accentBar}${logoImg(false)}
-        <div style="padding:42px 52px;height:100%;display:flex;flex-direction:column;justify-content:center">
-          ${s.label ? `<div style="font-size:9px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:${GREEN};margin-bottom:14px">${s.label}</div>` : ""}
-          <h2 style="font-family:${SERIF};font-size:28px;line-height:1.15;color:${DARK};margin-bottom:${s.subheadline?"6px":"22px"};font-weight:400;max-width:520px">${s.headline||""}</h2>
-          ${s.subheadline ? `<p style="font-size:11px;color:${MID};margin-bottom:18px;font-style:italic">${s.subheadline}</p>` : ""}
-          <div style="display:grid;grid-template-columns:${cols>1?"1fr 1fr":"1fr"};gap:0 32px;max-width:580px">
-            ${bullets.map((b:string,j:number)=>`
-              <div style="display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-top:1px solid #F0F0F0">
-                <span style="font-family:${SERIF};font-size:17px;color:${GREEN};line-height:1;flex-shrink:0">${String(j+1).padStart(2,"0")}</span>
-                <span style="font-size:11.5px;color:#333;line-height:1.5">${b}</span>
-              </div>`).join("")}
+      return `<!DOCTYPE html><html><head><style>${base}</style></head><body style="background:#0A0A0C">
+        ${nav}
+        <div style="position:relative;z-index:1;height:100%;display:flex;align-items:center;padding:44px 8%">
+          <div style="max-width:760px;width:100%">
+            ${s.label ? `<div style="font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:${GREEN};margin-bottom:12px">${s.label}</div>` : ""}
+            <h2 style="font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-.02em;color:#fff;margin-bottom:24px">${s.headline||""}</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+              ${bullets.map((b:string,j:number)=>`<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)"><span style="font-size:20px;font-weight:800;color:${GREEN};opacity:.7;flex-shrink:0;line-height:1">${String(j+1).padStart(2,"0")}</span><span style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.5">${b}</span></div>`).join("")}
+            </div>
           </div>
         </div>
-        ${footerHtml(idx,total,false)}
-      `, "white")
+        ${footer}
+      </body></html>`
     }
 
     if (s.type === "comparison") {
       const half = Math.ceil(bullets.length/2)
       const left = bullets.slice(0,half)
       const right = bullets.slice(half)
-      return wrapSlide(`
-        ${accentBar}${logoImg(false)}
-        <div style="padding:38px 48px 44px;height:100%;display:flex;flex-direction:column">
-          ${s.label ? `<div style="font-size:9px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:${GREEN};margin-bottom:10px">${s.label}</div>` : ""}
-          <h2 style="font-family:${SERIF};font-size:24px;color:${DARK};margin-bottom:20px;font-weight:400">${s.headline||""}</h2>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;flex:1">
-            <div style="padding-right:28px;border-right:1px solid #E8E8E8">
-              <div style="font-size:8px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#AAA;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #E8E8E8">Standard</div>
-              ${left.map((b:string)=>`<div style="display:flex;gap:8px;margin-bottom:9px"><span style="color:#CCC;font-size:12px">✕</span><span style="font-size:11px;color:#888;line-height:1.45">${b}</span></div>`).join("")}
+      return `<!DOCTYPE html><html><head><style>${base}</style></head><body style="background:#0A0A0C">
+        ${nav}
+        <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:center;padding:44px 8%">
+          ${s.label ? `<div style="font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:${GREEN};margin-bottom:10px">${s.label}</div>` : ""}
+          <h2 style="font-size:clamp(20px,2.8vw,30px);font-weight:800;letter-spacing:-.02em;color:#fff;margin-bottom:20px">${s.headline||""}</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:760px">
+            <div style="border-radius:10px;overflow:hidden">
+              <div style="padding:10px 16px;font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;background:rgba(255,255,255,.06);color:rgba(255,255,255,.4)">Standard</div>
+              <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-top:0;border-radius:0 0 10px 10px">
+                ${left.map((b:string)=>`<div style="display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);font-size:11.5px;color:rgba(255,255,255,.5)"><span style="color:#444">✕</span>${b}</div>`).join("")}
+              </div>
             </div>
-            <div style="padding-left:28px">
-              <div style="font-size:8px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:${GREEN};margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid ${GREEN}">ibox</div>
-              ${right.map((b:string)=>`<div style="display:flex;gap:8px;margin-bottom:9px"><span style="color:${GREEN};font-size:12px">✓</span><span style="font-size:11px;color:${DARK};line-height:1.45;font-weight:500">${b}</span></div>`).join("")}
+            <div style="border-radius:10px;overflow:hidden">
+              <div style="padding:10px 16px;font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;background:${GREEN};color:#fff">ibox</div>
+              <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-top:0;border-radius:0 0 10px 10px">
+                ${right.map((b:string)=>`<div style="display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);font-size:11.5px;color:rgba(255,255,255,.85);font-weight:500"><span style="color:${GREEN}">✓</span>${b}</div>`).join("")}
+              </div>
             </div>
           </div>
         </div>
-        ${footerHtml(idx,total,false)}
-      `, "white")
+        ${footer}
+      </body></html>`
     }
 
     // Default: content
-    return wrapSlide(`
-      ${accentBar}${logoImg(false)}
-      <div style="display:grid;grid-template-columns:156px 1fr;height:100%">
-        <div style="background:${DARK};padding:44px 24px;display:flex;flex-direction:column;justify-content:space-between;position:relative">
-          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:${GREEN}"></div>
-          ${s.label ? `<div style="font-size:7.5px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:${GREEN};line-height:1.6">${s.label}</div>` : "<div></div>"}
-          <div style="font-family:${SERIF};font-size:60px;color:rgba(255,255,255,0.06);line-height:1">${String(idx+1).padStart(2,"0")}</div>
+    return `<!DOCTYPE html><html><head><style>${base}</style></head><body style="background:#0A0A0C">
+      ${nav}
+      <div style="position:relative;z-index:1;display:grid;grid-template-columns:160px 1fr;height:100%">
+        <div style="background:rgba(255,255,255,.03);border-right:1px solid rgba(255,255,255,.07);padding:44px 24px;display:flex;flex-direction:column;justify-content:space-between">
+          ${s.label ? `<div style="font-size:8px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:${GREEN};line-height:1.6">${s.label}</div>` : "<div></div>"}
+          <div style="font-size:64px;font-weight:800;color:rgba(255,255,255,.05);line-height:1;letter-spacing:-.03em">${String(idx+1).padStart(2,"0")}</div>
         </div>
-        <div style="padding:36px 42px;display:flex;flex-direction:column;justify-content:center">
-          <h2 style="font-family:${SERIF};font-size:25px;line-height:1.15;color:${DARK};margin-bottom:${s.subheadline?"6px":"18px"};font-weight:400;max-width:440px">${s.headline||""}</h2>
-          ${s.subheadline ? `<p style="font-size:11px;color:${MID};margin-bottom:14px;font-style:italic;line-height:1.5">${s.subheadline}</p>` : ""}
-          ${s.text ? `<p style="font-size:11.5px;color:#444;line-height:1.7;max-width:420px;margin-bottom:${bullets.length?"14px":"0"}">${s.text}</p>` : ""}
-          ${bullets.map((b:string)=>`
-            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:7px">
-              <div style="width:15px;height:15px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px"><div style="width:4px;height:4px;border-radius:50%;background:${GREEN}"></div></div>
-              <span style="font-size:11.5px;color:#333;line-height:1.5">${b}</span>
-            </div>`).join("")}
+        <div style="padding:44px 48px;display:flex;flex-direction:column;justify-content:center">
+          <h2 style="font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-.02em;color:#fff;line-height:1.12;margin-bottom:${s.subheadline?"8px":"20px"}">${s.headline||""}</h2>
+          ${s.subheadline ? `<p style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:18px;font-style:italic;line-height:1.5">${s.subheadline}</p>` : ""}
+          ${s.text ? `<p style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.75;max-width:480px;margin-bottom:${bullets.length?"18px":"0"}">${s.text}</p>` : ""}
+          <div style="display:flex;flex-direction:column;gap:10px;max-width:520px">
+            ${bullets.map((b:string)=>`<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)"><div style="width:20px;height:20px;border-radius:50%;background:rgba(48,158,59,.12);border:1.5px solid ${GREEN};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px"><div style="width:5px;height:5px;border-radius:50%;background:${GREEN}"></div></div><span style="font-size:12.5px;color:rgba(255,255,255,.75);line-height:1.5">${b}</span></div>`).join("")}
+          </div>
         </div>
       </div>
-      ${footerHtml(idx,total,false)}
-    `, "white")
+      ${footer}
+    </body></html>`
   }
 
 
