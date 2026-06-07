@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
 
     const groupCounts: Record<string, { name: string; count: number; color: string }> = {}
     const groupColors = ["#309E3B", "#1A1A1A", "#6B6B6B", "#E8A020", "#2563EB", "#DC2626"]
-    presentationsPerGroup.forEach((p) => {
+    presentationsPerGroup.forEach((p: any) => {
       const groupName = p.baseProductVersion?.product?.productGroup?.name || "Unbekannt"
       if (!groupCounts[groupName]) {
         const idx = Object.keys(groupCounts).length
@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
       presentationsByStatus,
       presentationsByType,
       presentationsPerGroup: Object.values(groupCounts),
-      productGroups: productGroups.map((pg) => ({
+      productGroups: productGroups.map((pg: any) => ({
         id: pg.id,
         name: pg.name,
         productCount: pg.products.length,
