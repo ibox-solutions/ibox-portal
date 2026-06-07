@@ -35,7 +35,13 @@ export default function PresentationsPage() {
       .finally(() => setIsLoading(false))
   }, [])
 
-  const filtered = presentations.filter((p) => {
+  const deletePresentation = async (id: string, title: string) => {
+    if (!confirm(`"${title}" wirklich löschen?`)) return
+    await fetch(`/api/presentations/${id}`, { method: "DELETE" })
+    setPresentations(prev => prev.filter(p => p.id !== id))
+  }
+
+
     const q = search.toLowerCase()
     const matchesSearch =
       !q ||
@@ -142,6 +148,7 @@ export default function PresentationsPage() {
               )}
               <div className="bg-white rounded-xl border border-[#E0E0E0] overflow-hidden">
                 {items.map((p, i) => (
+                  <div key={p.id} className="relative group">
                   <Link
                     key={p.id}
                     href={`/presentations/${p.id}`}
@@ -181,6 +188,12 @@ export default function PresentationsPage() {
                       </span>
                     </div>
                   </Link>
+                  <button
+                    onClick={(e) => { e.preventDefault(); deletePresentation(p.id, p.title) }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition w-7 h-7 flex items-center justify-center text-[#9B9B9B] hover:text-red-500 hover:bg-red-50 rounded"
+                    title="Löschen"
+                  >✕</button>
+                  </div>
                 ))}
               </div>
             </div>

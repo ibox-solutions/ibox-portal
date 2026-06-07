@@ -196,6 +196,18 @@ export default function PresentationDetailPage() {
               ✏️ Editor
             </Link>
 
+            {/* Delete Button */}
+            <button
+              onClick={async () => {
+                if (!confirm("Präsentation wirklich löschen?")) return
+                await fetch(`/api/presentations/${params.id}`, { method: "DELETE" })
+                router.push("/presentations")
+              }}
+              className="flex items-center gap-2 font-medium px-4 py-2.5 rounded-lg transition text-sm border-2 border-red-200 text-red-500 bg-white hover:bg-red-50"
+            >
+              🗑 Löschen
+            </button>
+
             {/* PDF Dropdown */}
             <div className="relative">
               <button

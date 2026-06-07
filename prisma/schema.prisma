@@ -9,15 +9,44 @@ datasource db {
 }
 
 model User {
-  id String @id @default(cuid())
-  email String @unique
-  password String
-  name String
-  role String @default("MITARBEITER")
-  isActive Boolean @default(true)
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      String    @default("MITARBEITER") // ADMIN | MITARBEITER
+  countryId String?
+  country   Country?  @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  teamId    String?
+  team      Team?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  isActive  Boolean   @default(true)
   lastLogin DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Country {
+  id        String    @id @default(cuid())
+  code      String    @unique // AT, DE, CH
+  name      String
+  language  String    @default("de")
+  flag      String?
+  isActive  Boolean   @default(true)
+  teams     Team[]
+  users     User[]
+  presentations Presentation[]
+  createdAt DateTime  @default(now())
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  countryId   String
+  country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  description String?
+  isActive    Boolean  @default(true)
+  users       User[]
+  presentations Presentation[]
+  createdAt   DateTime @default(now())
 }
 
 model ProductGroup {
@@ -158,6 +187,12 @@ model Presentation {
   editorMode  String @default("slides")
   status String @default("DRAFT")
   presentationType String @default("unbegleitet")
+  countryId   String?
+  country     Country? @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  teamId      String?
+  team        Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  createdByEmail String?
+  language    String   @default("de")
   publishedAt DateTime?
   products PresentationProduct[]
   offers PresentationOffer[]

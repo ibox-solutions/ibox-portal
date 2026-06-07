@@ -3,28 +3,11 @@ import { prisma } from "@/lib/db"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  const { id } = await params
-  const p = await prisma.presentation.findUnique({
-    where: { id },
-    include: {
-      baseProductVersion: { include: { product: { include: { productGroup: true } } } },
-      baseCategory: true,
-      country: true,
-      team: true,
-    },
-  })
-  if (!p) return NextResponse.json({ error: "Not found" }, { status: 404 })
-  return NextResponse.json(p)
-}
-
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   const { id } = await params
-  await prisma.presentation.delete({ where: { id } })
+  await prisma.country.delete({ where: { id } })
   return NextResponse.json({ success: true })
 }
 
@@ -33,6 +16,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   const { id } = await params
   const body = await req.json()
-  const p = await prisma.presentation.update({ where: { id }, data: body })
-  return NextResponse.json(p)
+  const country = await prisma.country.update({ where: { id }, data: body })
+  return NextResponse.json(country)
 }

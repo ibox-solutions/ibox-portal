@@ -15,10 +15,27 @@ export async function GET(req: NextRequest) {
     const categoryId = searchParams.get("categoryId")
     const status = searchParams.get("status")
 
+    // Load current user to check role and country/team
+    const currentUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { role: true, countryId: true, teamId: true },
+    })
+
     const where: any = {}
     if (productVersionId) where.baseProductVersionId = productVersionId
     if (categoryId) where.baseCategoryId = categoryId
     if (status) where.status = status
+
+    // ADMIN sees everything, others see only their team/country
+    if (currentUser && currentUser.role !== "ADMIN") {
+      if (currentUser.teamId) {
+        where.teamId = currentUser.teamId
+      } else if (currentUser.countryId) {
+        where.countryId = currentUser.countryId
+      } else {
+        where.createdByEmail = session.user.email
+      }
+    }
 
     const presentations = await prisma.presentation.findMany({
       where,
@@ -28,6 +45,8 @@ export async function GET(req: NextRequest) {
           include: { product: { include: { productGroup: true } } },
         },
         baseCategory: true,
+        country: true,
+        team: true,
       },
     })
 

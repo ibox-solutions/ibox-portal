@@ -24,6 +24,13 @@ const NAV = [
       { href: "/admin/offers", icon: "➕", label: "Zusatzangebote" },
     ],
   },
+  {
+    label: "Organisation",
+    items: [
+      { href: "/admin/users", icon: "👥", label: "Benutzer" },
+      { href: "/admin/countries", icon: "🌍", label: "Länder & Teams" },
+    ],
+  },
 ]
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
